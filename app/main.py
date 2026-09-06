@@ -2,7 +2,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from fastapi import FastAPI
-from app.routers import documents, chat
+from app.api.routers import documents, chat
 
 app = FastAPI()
 

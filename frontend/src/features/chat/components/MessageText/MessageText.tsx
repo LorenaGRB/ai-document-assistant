@@ -1,4 +1,13 @@
-export default function MessageText({ text, citations, onToggleCitation }) {
+import type { Citation } from "../../types";
+import "./MessageText.css";
+
+interface MessageTextProps {
+  text: string;
+  citations?: Citation[];
+  onToggleCitation: (n: number) => void;
+}
+
+export default function MessageText({ text, citations, onToggleCitation }: MessageTextProps) {
   if (!citations) return text;
 
   return text.split(/(\[\d+\])/g).map((part, i) => {

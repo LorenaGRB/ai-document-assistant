@@ -1,0 +1,10 @@
+.telemetry {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--muted);
+  display: flex;
+  gap: 16px;
+  margin-bottom: 10px;
+}
+
+.telemetry b { color: var(--amber); font-weight: 500; }

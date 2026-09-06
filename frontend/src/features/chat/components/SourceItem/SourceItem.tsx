@@ -1,6 +1,12 @@
 import { FileText } from "lucide-react";
+import type { Source } from "../../../../data/mockData";
+import "./SourceItem.css";
 
-export default function SourceItem({ source }) {
+interface SourceItemProps {
+  source: Source;
+}
+
+export default function SourceItem({ source }: SourceItemProps) {
   return (
     <div className="source">
       <FileText size={14} className="source-icon" />

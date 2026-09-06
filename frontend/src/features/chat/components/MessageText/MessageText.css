@@ -1,0 +1,12 @@
+.citation-chip {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  background: var(--paper);
+  color: #3a3528;
+  border: none;
+  border-radius: 3px;
+  padding: 1px 5px;
+  margin: 0 2px;
+  cursor: pointer;
+  vertical-align: super;
+}

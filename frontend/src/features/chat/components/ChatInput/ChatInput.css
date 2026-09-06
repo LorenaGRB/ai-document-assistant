@@ -1,0 +1,30 @@
+.input-row { display: flex; gap: 8px; }
+
+.input-row input {
+  flex: 1;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: var(--text);
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 13px;
+  outline: none;
+}
+
+.input-row input:focus { border-color: var(--signal); }
+.input-row input::placeholder { color: var(--muted); }
+
+.send-btn {
+  background: var(--signal);
+  border: none;
+  border-radius: 8px;
+  width: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--ink);
+}
+
+.send-btn:hover { opacity: 0.85; }

@@ -1,10 +1,18 @@
-export const mockSources = [
+import type { Message } from "../features/chat/types";
+
+export interface Source {
+  id: number;
+  name: string;
+  status: "ready" | "processing";
+}
+
+export const mockSources: Source[] = [
   { id: 1, name: "design-doc.md", status: "ready" },
   { id: 2, name: "api-notes.pdf", status: "ready" },
   { id: 3, name: "meeting-transcript.txt", status: "processing" },
 ];
 
-export const mockMessages = [
+export const mockMessages: Message[] = [
   {
     id: 1,
     role: "user",

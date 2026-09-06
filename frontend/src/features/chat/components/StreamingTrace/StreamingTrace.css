@@ -1,0 +1,19 @@
+.trace {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 16px;
+  margin-top: 8px;
+}
+
+.trace span {
+  width: 3px;
+  background: var(--signal);
+  border-radius: 1px;
+  animation: bounce 1s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { height: 3px; }
+  50% { height: 14px; }
+}

@@ -1,6 +1,13 @@
 import { Send } from "lucide-react";
+import "./ChatInput.css";
 
-export default function ChatInput({ value, onChange, onSend }) {
+interface ChatInputProps {
+  value: string;
+  onChange: (value: string) => void;
+  onSend: () => void;
+}
+
+export default function ChatInput({ value, onChange, onSend }: ChatInputProps) {
   return (
     <div className="input-row">
       <input

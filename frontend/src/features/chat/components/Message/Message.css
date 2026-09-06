@@ -1,0 +1,25 @@
+.msg-row { display: flex; }
+.msg-row.user { justify-content: flex-end; }
+
+.bubble {
+  max-width: 72%;
+  font-size: 14px;
+  line-height: 1.6;
+  padding: 10px 14px;
+  border-radius: 10px;
+}
+
+.bubble.user { background: var(--panel-hover); color: var(--text); }
+
+.bubble.assistant {
+  background: none;
+  border-left: 2px solid var(--border);
+  padding: 0 0 0 14px;
+  border-radius: 0;
+}
+
+.bubble.assistant.streaming { border-left-color: var(--signal); }
+
+@media (max-width: 640px) {
+  .bubble { max-width: 88%; }
+}

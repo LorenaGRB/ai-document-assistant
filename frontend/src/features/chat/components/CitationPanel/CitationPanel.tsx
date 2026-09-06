@@ -1,4 +1,11 @@
-export default function CitationPanel({ citation }) {
+import type { Citation } from "../../types";
+import "./CitationPanel.css";
+
+interface CitationPanelProps {
+  citation?: Citation;
+}
+
+export default function CitationPanel({ citation }: CitationPanelProps) {
   if (!citation) return null;
 
   return (

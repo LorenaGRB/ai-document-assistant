@@ -1,0 +1,12 @@
+.citation-panel {
+  margin-top: 8px;
+  padding: 8px 10px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.citation-panel-source { color: var(--signal); margin-bottom: 3px; }

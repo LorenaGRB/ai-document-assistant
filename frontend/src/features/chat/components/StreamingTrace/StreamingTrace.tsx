@@ -1,3 +1,5 @@
+import "./StreamingTrace.css";
+
 export default function StreamingTrace() {
   return (
     <div className="trace">

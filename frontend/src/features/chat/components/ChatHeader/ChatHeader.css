@@ -1,0 +1,20 @@
+.header {
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.header-title { font-family: 'IBM Plex Mono', monospace; font-size: 13px; }
+
+.header-live {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--signal);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--signal); }

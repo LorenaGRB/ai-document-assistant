@@ -18,8 +18,8 @@ export default function Message({ message, openCitation, onToggleCitation }: Mes
       <div className={`bubble ${message.role} ${message.streaming ? "streaming" : ""}`}>
         <MessageText
           text={message.text}
-          citations={message.citations}
-          onToggleCitation={onToggleCitation}
+          // citations={message.citations}
+          // onToggleCitation={onToggleCitation}
         />
         {activeCitation && <CitationPanel citation={activeCitation} />}
         {message.streaming && <StreamingTrace />}

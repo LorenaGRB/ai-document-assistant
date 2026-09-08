@@ -1,6 +1,7 @@
 import Message from "../Message/Message";
 import type { Message as MessageType } from "../../types";
 import "./ChatThread.css";
+import { useEffect, useRef } from "react";
 
 interface ChatThreadProps {
   messages: MessageType[];
@@ -9,6 +10,12 @@ interface ChatThreadProps {
 }
 
 export default function ChatThread({ messages, openCitation, onToggleCitation }: ChatThreadProps) {
+  const bottomRef = useRef<HTMLDivElement>(null);
+  
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+  
   return (
     <div className="thread">
       {messages.map((m) => (
@@ -19,6 +26,7 @@ export default function ChatThread({ messages, openCitation, onToggleCitation }:
           onToggleCitation={onToggleCitation}
         />
       ))}
+      <div ref={bottomRef} />
     </div>
   );
 }

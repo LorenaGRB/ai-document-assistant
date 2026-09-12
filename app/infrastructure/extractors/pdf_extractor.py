@@ -7,5 +7,5 @@ class PdfExtractor(DocumentExtractor):
         reader = PdfReader(BytesIO(file_bytes))
         text = ""
         for page in reader.pages:
-            text += page.extract_text()
+            text += page.extract_text(extraction_mode="layout")
         return text

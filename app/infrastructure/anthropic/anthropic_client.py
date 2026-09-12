@@ -2,8 +2,8 @@ from typing import Iterator
 
 from anthropic import Anthropic
 
-from app.domain.chat.entities import Message
-from app.domain.chat.ports import LLMClient
+from app.domain.chat.entity_message import Message
+from app.domain.chat.port_llm_client import LLMClient
 
 
 class AnthropicLLMClient(LLMClient):

@@ -1,5 +1,5 @@
 from app.infrastructure.supabase.supabase_client import get_supabase_client
-from app.domain.documents.ports.document_storage import DocumentStorage
+from app.domain.documents.port_document_storage import DocumentStorage
 
 class SupabaseDocumentStorage(DocumentStorage):
     def __init__(self):

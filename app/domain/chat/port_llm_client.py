@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Iterator
 
-from app.domain.chat.entities import Message
+from app.domain.chat.entity_message import Message
 
 
 class LLMClient(ABC):

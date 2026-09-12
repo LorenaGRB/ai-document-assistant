@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, UploadFile
-from app.application.document.service import UploadDocumentService
+from app.application.document.service_upload_document import UploadDocumentService
 from app.infrastructure.supabase.supabase_document_storage import SupabaseDocumentStorage
 from app.infrastructure.supabase.supabase_document_repository import SupabaseDocumentRepository
 from app.api.schemas.document import DocumentResponse

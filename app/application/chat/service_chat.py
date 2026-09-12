@@ -1,7 +1,7 @@
 from typing import Iterator
 
-from app.domain.chat.entities import Message, Role
-from app.domain.chat.ports import LLMClient
+from app.domain.chat.entity_message import Message, Role
+from app.domain.chat.port_llm_client import LLMClient
 
 
 class ChatService:

@@ -1,7 +1,5 @@
-# application/document/service.py
-
-from app.domain.documents.ports.document_storage import DocumentStorage
-from app.domain.documents.ports.document_repository import DocumentRepository
+from app.domain.documents.port_document_storage import DocumentStorage
+from app.domain.documents.port_document_repository import DocumentRepository
 
 class UploadDocumentService:
     def __init__(self, storage: DocumentStorage, repository: DocumentRepository):

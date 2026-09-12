@@ -1,7 +1,7 @@
 # infrastructure/supabase/supabase_document_repository.py
 
-from app.domain.documents.entities import Document
-from app.domain.documents.ports.document_repository import DocumentRepository
+from app.domain.documents.entity_document import Document
+from app.domain.documents.port_document_repository import DocumentRepository
 from app.infrastructure.supabase.supabase_client import get_supabase_client
 
 class SupabaseDocumentRepository(DocumentRepository):

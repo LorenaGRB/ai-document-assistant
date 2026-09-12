@@ -5,6 +5,7 @@ import uuid
 
 @dataclass(frozen=True)
 class Chunk:
-    id: str = field(default_factory=lambda: str(uuid.uuid4()))
     text: str
     vector: list[float]
+    document_id: str
+    id: str = field(default_factory=lambda: str(uuid.uuid4()))

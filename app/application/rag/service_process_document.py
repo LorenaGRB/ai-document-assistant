@@ -17,11 +17,11 @@ class ProcessDocumentService:
 
         chunks = [
             Chunk(
-                text=chunk,
-                vector=self._embedding.embed(chunk),
+                text=chunked_text,
+                vector=self._embedding.embed(chunked_text),
                 document_id=document_id,
             )
-            for chunk in chunked_list
+            for chunked_text in chunked_list
         ]
 
         self._vector_store.add(chunks)

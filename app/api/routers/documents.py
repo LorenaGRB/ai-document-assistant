@@ -18,6 +18,7 @@ def process_document(document_id: str, file_bytes: bytes, content_type: str) -> 
         extractor=get_extractor(content_type),
         embedding=OpenAIEmbeddingProvider(),
         vector_store=PineconeVectorStore(get_pinecone_index()),
+         repository=SupabaseDocumentRepository(),
     )
     service.execute(file_bytes, document_id)
 

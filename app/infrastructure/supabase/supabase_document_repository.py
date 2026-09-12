@@ -23,3 +23,6 @@ class SupabaseDocumentRepository(DocumentRepository):
             status=row["status"],
             created_at=row["created_at"]
         )
+
+    def update_status(self, document_id: str, status: str) -> None:
+        self._client.table("documents").update({"status": status}).eq("id", document_id).execute()

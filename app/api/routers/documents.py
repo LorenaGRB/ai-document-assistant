@@ -1,6 +1,8 @@
 from fastapi import APIRouter, BackgroundTasks, HTTPException, UploadFile
+from fastapi.responses import StreamingResponse
 from app.application.document.service_upload_document import UploadDocumentService
 from app.application.rag.service_process_document import ProcessDocumentService
+from app.infrastructure.memory.in_memory_document_notifier import InMemoryDocumentNotifier, get_document_notifier
 from app.infrastructure.supabase.supabase_document_storage import SupabaseDocumentStorage
 from app.infrastructure.supabase.supabase_document_repository import SupabaseDocumentRepository
 from app.infrastructure.extractors.extractor_factory import get_extractor
@@ -18,7 +20,8 @@ def process_document(document_id: str, file_bytes: bytes, content_type: str) -> 
         extractor=get_extractor(content_type),
         embedding=OpenAIEmbeddingProvider(),
         vector_store=PineconeVectorStore(get_pinecone_index()),
-         repository=SupabaseDocumentRepository(),
+        repository=SupabaseDocumentRepository(),
+        notifier=get_document_notifier()
     )
     service.execute(file_bytes, document_id)
 
@@ -38,3 +41,11 @@ async def upload_document(file: UploadFile, background_tasks: BackgroundTasks) -
     background_tasks.add_task(process_document, document.id, file_bytes, file.content_type)
 
     return DocumentResponse(**document.__dict__)
+
+@router.get("/documents/{document_id}/status")
+async def get_document_status(document_id: str):
+    notifier = get_document_notifier()
+    return StreamingResponse(
+        content=notifier.subscribe(document_id),
+        media_type="text/event-stream"
+    )

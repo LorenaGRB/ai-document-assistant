@@ -7,5 +7,8 @@ class UploadDocumentService:
         self._repository = repository
 
     def execute(self, filename: str, file_bytes: bytes, content_type: str) -> dict:
+        if self._repository.exists_by_filename(filename):
+            raise ValueError(f"A document named '{filename}' already exists")
+    
         storage_path = self._storage.upload_document(filename, file_bytes, content_type)
         return self._repository.save(filename, storage_path)

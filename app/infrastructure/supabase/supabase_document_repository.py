@@ -8,6 +8,9 @@ class SupabaseDocumentRepository(DocumentRepository):
     def __init__(self):
         self._client = get_supabase_client()
 
+    def exists_by_filename(self, filename: str) -> bool:
+        response = self._client.table("documents").select("id").eq("filename", filename).execute()
+        return len(response.data) > 0
    
     def save(self, filename: str, storage_path: str) -> Document:
         response = self._client.table("documents").insert({

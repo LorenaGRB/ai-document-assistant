@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from fastapi.responses import StreamingResponse
 
 from app.api.schemas.chat import ChatRequest
-from app.application.chat.service_chat import ChatService
+from app.application.service_chat import ChatService
 from app.infrastructure.anthropic.anthropic_client import AnthropicLLMClient
 from functools import lru_cache
 

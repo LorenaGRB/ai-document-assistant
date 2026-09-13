@@ -1,7 +1,7 @@
 from fastapi import APIRouter, BackgroundTasks, HTTPException, UploadFile
 from fastapi.responses import StreamingResponse
-from app.application.document.service_upload_document import UploadDocumentService
-from app.application.rag.service_process_document import ProcessDocumentService
+from app.application.service_upload_document import UploadDocumentService
+from app.application.service_process_document import ProcessDocumentService
 from app.infrastructure.memory.in_memory_document_notifier import InMemoryDocumentNotifier, get_document_notifier
 from app.infrastructure.supabase.supabase_document_storage import SupabaseDocumentStorage
 from app.infrastructure.supabase.supabase_document_repository import SupabaseDocumentRepository

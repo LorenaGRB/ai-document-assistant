@@ -2,6 +2,10 @@ from abc import ABC, abstractmethod
 
 class DocumentRepository(ABC):
     @abstractmethod
+    def exists_by_filename(self, filename: str) -> bool:
+        ...
+    
+    @abstractmethod
     def save(self,filename: str, storage_path: str) -> dict:
         ...
 

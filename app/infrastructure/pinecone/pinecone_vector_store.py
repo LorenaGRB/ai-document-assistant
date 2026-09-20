@@ -12,7 +12,7 @@ class PineconeVectorStore(VectorStore):
             {
                 "id": chunk.id,
                 "values": chunk.vector,
-                "metadata": {"text": chunk.text, "document_id": chunk.document_id},
+                "metadata": {"text": chunk.text, "document_id": chunk.document_id, "chunk_index": chunk.chunk_index},
             }
             for chunk in chunks
         ]

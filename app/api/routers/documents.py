@@ -29,18 +29,22 @@ def process_document(document_id: str, file_bytes: bytes, content_type: str) -> 
 async def upload_document(file: UploadFile, background_tasks: BackgroundTasks) -> DocumentResponse:
     if file.content_type not in ALLOWED_TYPES:
         raise HTTPException(status_code=400, detail="Only PDF and text files are allowed")
-
+    
     file_bytes = await file.read()
 
     service = UploadDocumentService(
         storage=SupabaseDocumentStorage(),
         repository=SupabaseDocumentRepository()
     )
-
-    document = service.execute(file.filename, file_bytes, file.content_type)
+    try:
+        document = service.execute(file.filename, file_bytes, file.content_type)
+    except ValueError as e:
+        raise HTTPException(status_code=409, detail=str(e))
+    
     background_tasks.add_task(process_document, document.id, file_bytes, file.content_type)
 
     return DocumentResponse(**document.__dict__)
+
 
 @router.get("/documents/{document_id}/status")
 async def get_document_status(document_id: str):

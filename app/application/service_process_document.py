@@ -5,7 +5,9 @@ from app.domain.rag.port_embedding import Embedding
 from app.domain.rag.port_vector_store import VectorStore
 from app.domain.rag.entity_chunk import Chunk
 from app.domain.rag.service_chunking import chunk
+import logging
 
+logger = logging.getLogger(__name__)
 
 class ProcessDocumentService:
     def __init__(self, extractor: DocumentExtractor, embedding: Embedding, vector_store: VectorStore, repository: DocumentRepository,
@@ -19,20 +21,22 @@ class ProcessDocumentService:
     def execute(self, file_bytes: bytes, document_id: str) -> None:
         try:
             text = self._extractor.extract(file_bytes)
-            chunked_list = chunk(text, chunk_size=500, overlap=50)
+            chunked_list = chunk(text, chunk_size=2000, overlap=200)
 
             chunks = [
                 Chunk(
                     text=chunked_text,
                     vector=self._embedding.embed(chunked_text),
                     document_id=document_id,
+                    chunk_index=index
                 )
-                for chunked_text in chunked_list
+                for index, chunked_text in enumerate(chunked_list)
             ]
 
             self._vector_store.add(chunks)
             self._repository.update_status(document_id, "processed")
             self._notifier.notify(document_id, "processed")
-        except Exception:
+        except Exception as e:
+            logger.error(f"Error occurred while processing document {document_id}: {e}")
             self._repository.update_status(document_id, "failed")
             self._notifier.notify(document_id, "failed")

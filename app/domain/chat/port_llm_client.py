@@ -6,5 +6,5 @@ from app.domain.chat.entity_message import Message
 
 class LLMClient(ABC):
     @abstractmethod
-    def stream_reply(self, messages: list[Message]) -> Iterator[str]:
+    def stream_reply(self, messages: list[Message], rag_content: str) -> Iterator[str]:
         ...

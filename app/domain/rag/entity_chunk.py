@@ -9,4 +9,5 @@ class Chunk:
     vector: list[float]
     document_id: str
     chunk_index: int
+    document_filename: str
     id: str = field(default_factory=lambda: str(uuid.uuid4()))

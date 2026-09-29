@@ -18,7 +18,7 @@ class ProcessDocumentService:
         self._repository = repository
         self._notifier = notifier
 
-    def execute(self, file_bytes: bytes, document_id: str) -> None:
+    def execute(self, file_bytes: bytes, document_id: str, document_filename: str) -> None:
         try:
             text = self._extractor.extract(file_bytes)
             chunked_list = chunk(text, chunk_size=2000, overlap=200)
@@ -28,7 +28,8 @@ class ProcessDocumentService:
                     text=chunked_text,
                     vector=self._embedding.embed(chunked_text),
                     document_id=document_id,
-                    chunk_index=index
+                    chunk_index=index,
+                    document_filename=document_filename
                 )
                 for index, chunked_text in enumerate(chunked_list)
             ]
@@ -37,6 +38,6 @@ class ProcessDocumentService:
             self._repository.update_status(document_id, "processed")
             self._notifier.notify(document_id, "processed")
         except Exception as e:
-            logger.error(f"Error occurred while processing document {document_id}: {e}")
+            logger.exception("Failed to process document %s", document_id)
             self._repository.update_status(document_id, "failed")
             self._notifier.notify(document_id, "failed")

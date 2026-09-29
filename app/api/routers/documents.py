@@ -15,7 +15,7 @@ router = APIRouter()
 
 ALLOWED_TYPES = ["application/pdf", "text/plain"]
 
-def process_document(document_id: str, file_bytes: bytes, content_type: str) -> None:
+def process_document(document_id: str, file_bytes: bytes, content_type: str, document_filename: str) -> None:
     service = ProcessDocumentService(
         extractor=get_extractor(content_type),
         embedding=OpenAIEmbeddingProvider(),
@@ -23,7 +23,7 @@ def process_document(document_id: str, file_bytes: bytes, content_type: str) -> 
         repository=SupabaseDocumentRepository(),
         notifier=get_document_notifier()
     )
-    service.execute(file_bytes, document_id)
+    service.execute(file_bytes, document_id, document_filename)
 
 @router.post("/documents")
 async def upload_document(file: UploadFile, background_tasks: BackgroundTasks) -> DocumentResponse:
@@ -41,7 +41,7 @@ async def upload_document(file: UploadFile, background_tasks: BackgroundTasks) -
     except ValueError as e:
         raise HTTPException(status_code=409, detail=str(e))
     
-    background_tasks.add_task(process_document, document.id, file_bytes, file.content_type)
+    background_tasks.add_task(process_document, document.id, file_bytes, file.content_type, document.filename)
 
     return DocumentResponse(**document.__dict__)
 

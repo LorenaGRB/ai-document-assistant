@@ -25,6 +25,12 @@ def process_document(document_id: str, file_bytes: bytes, content_type: str, doc
     )
     service.execute(file_bytes, document_id, document_filename)
 
+@router.get("/documents")
+async def list_documents() -> list[DocumentResponse]:
+    repository = SupabaseDocumentRepository()
+    documents = repository.list_all()
+    return [DocumentResponse(**doc.__dict__) for doc in documents]
+
 @router.post("/documents")
 async def upload_document(file: UploadFile, background_tasks: BackgroundTasks) -> DocumentResponse:
     if file.content_type not in ALLOWED_TYPES:

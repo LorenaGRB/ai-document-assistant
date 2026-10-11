@@ -13,3 +13,11 @@ export interface Message {
   citations?: Citation[];
   streaming?: boolean;
 }
+
+export interface Source {
+  id: string;
+  name: string;
+  status: "processing" | "processed" | "failed" | "error";
+  /** Shown when status is "error" (upload rejected) or "failed" (processing failed). */
+  error?: string;
+}

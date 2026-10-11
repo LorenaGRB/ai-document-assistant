@@ -23,8 +23,21 @@
   flex-shrink: 0;
 }
 
-.status-ready { background: var(--signal); }
+.status-processed { background: var(--signal); }
+.status-error, .status-failed { background: var(--error, #e5584f); }
 .status-processing { background: var(--amber); animation: pulse 1.4s ease-in-out infinite; }
+
+.source-body {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.source-error {
+  font-size: 11px;
+  color: var(--error, #e5584f);
+  margin-top: 2px;
+}
 
 @keyframes pulse {
   0%, 100% { opacity: 1; }

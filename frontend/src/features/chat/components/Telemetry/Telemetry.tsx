@@ -1,17 +1,6 @@
-import "./Telemetry.css";
-
-interface TelemetryProps {
-  ttft: string;
-  tokens: string;
-  cost: string;
-}
-
-export default function Telemetry({ ttft, tokens, cost }: TelemetryProps) {
-  return (
-    <div className="telemetry">
-      <span>TTFT <b>{ttft}</b></span>
-      <span>tokens <b>{tokens}</b></span>
-      <span>cost <b>{cost}</b></span>
-    </div>
-  );
+// Pending backend work: /chat does not return ttft/tokens/cost yet, so render
+// nothing rather than showing fabricated values. Restore the metrics markup
+// (see git history) once the backend provides them.
+export default function Telemetry() {
+  return null;
 }

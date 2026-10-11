@@ -7,7 +7,7 @@ from app.domain.chat.port_llm_client import LLMClient
 
 
 class AnthropicLLMClient(LLMClient):
-    def __init__(self, model: str = "claude-sonnet-5", max_tokens: int = 1024):
+    def __init__(self, model: str = "claude-haiku-5-5", max_tokens: int = 1024):
         self._client = Anthropic()
         self._model = model
         self._max_tokens = max_tokens

@@ -29,3 +29,16 @@ class SupabaseDocumentRepository(DocumentRepository):
 
     def update_status(self, document_id: str, status: str) -> None:
         self._client.table("documents").update({"status": status}).eq("id", document_id).execute()
+
+    def list_all(self) -> list[Document]:
+        response = self._client.table("documents").select("*").order("created_at", desc=True).execute()
+        return [
+            Document(
+                id=row["id"],
+                filename=row["filename"],
+                storage_path=row["storage_path"],
+                status=row["status"],
+                created_at=row["created_at"]
+            )
+            for row in response.data
+        ]

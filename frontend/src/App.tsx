@@ -5,15 +5,16 @@ import ChatThread from "./features/chat/components/ChatThread/ChatThread";
 import Telemetry from "./features/chat/components/Telemetry/Telemetry";
 import ChatInput from "./features/chat/components/ChatInput/ChatInput";
 import { useChatStream } from "./features/chat/hooks/useChatStream";
-import { mockSources, mockMessages } from "./data/mockData";
+import { useSources } from "./features/chat/hooks/useSources";
 
 export default function App() {
   const { input, setInput, messages, openCitation, handleSend, toggleCitation } =
-    useChatStream(mockMessages);
+    useChatStream([]);
+  const { sources, addSource } = useSources();
 
   return (
     <div className="app">
-      <Sidebar sources={mockSources} />
+      <Sidebar sources={sources} onAddSource={addSource} />
 
       <div className="main">
         <ChatHeader title="ai-document-assistant" />
@@ -25,7 +26,7 @@ export default function App() {
         />
 
         <div className="footer">
-          <Telemetry ttft="340ms" tokens="1.2k" cost="$0.004" />
+          <Telemetry />
           <ChatInput value={input} onChange={setInput} onSend={handleSend} />
         </div>
       </div>

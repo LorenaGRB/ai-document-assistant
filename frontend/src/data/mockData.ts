@@ -1,15 +1,9 @@
-import type { Message } from "../features/chat/types";
-
-export interface Source {
-  id: number;
-  name: string;
-  status: "ready" | "processing";
-}
+import type { Message, Source } from "../features/chat/types";
 
 export const mockSources: Source[] = [
-  { id: 1, name: "design-doc.md", status: "ready" },
-  { id: 2, name: "api-notes.pdf", status: "ready" },
-  { id: 3, name: "meeting-transcript.txt", status: "processing" },
+  { id: "1", name: "design-doc.md", status: "processed" },
+  { id: "2", name: "api-notes.pdf", status: "processed" },
+  { id: "3", name: "meeting-transcript.txt", status: "processing" },
 ];
 
 export const mockMessages: Message[] = [

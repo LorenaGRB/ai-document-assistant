@@ -1,5 +1,5 @@
 import { FileText } from "lucide-react";
-import type { Source } from "../../../../data/mockData";
+import type { Source } from "../../types";
 import "./SourceItem.css";
 
 interface SourceItemProps {
@@ -7,11 +7,17 @@ interface SourceItemProps {
 }
 
 export default function SourceItem({ source }: SourceItemProps) {
+  const hasError = source.status === "error" || source.status === "failed";
   return (
-    <div className="source">
+    <div className={`source${hasError ? " source-has-error" : ""}`}>
       <FileText size={14} className="source-icon" />
-      <span className="source-name">{source.name}</span>
-      <span className={`status-dot status-${source.status}`} />
+      <div className="source-body">
+        <span className="source-name" title={source.name}>{source.name}</span>
+        {hasError && source.error && (
+          <span className="source-error" role="alert">{source.error}</span>
+        )}
+      </div>
+      <span className={`status-dot status-${source.status}`} title={source.status} />
     </div>
   );
 }

@@ -4,20 +4,24 @@ A full-stack document Q&A assistant: upload documents, ask questions, get ground
 
 ## Status
 
-Document ingestion is complete end to end. Retrieval (grounding chat answers in the uploaded documents) is the next block; until then, `POST /chat` answers from the model alone.
+Ingestion and retrieval are done: chat answers are grounded in the uploaded documents, and the frontend runs on real document data. Next up are chat history persistence and the `create_task` agent tool. Full design, decisions and audit: [docs/Project_description_v2.md](docs/Project_description_v2.md).
 
 | Area | Status | Notes |
 | --- | --- | --- |
 | `GET /health` | ✅ | Liveness check |
 | `POST /documents` | ✅ | Validates type (PDF/text), rejects duplicate filenames (409), stores the file, and starts background processing |
-| `GET /documents/{id}/status` | ✅ | Server-Sent Events stream: `processed` or `failed` |
-| `POST /chat` | 🟡 | Streams a Claude response over SSE. Single-turn, no history, no retrieval yet |
+| `GET /documents` | ✅ | Lists documents, newest first |
+| `GET /documents/{id}/status` | ✅ | Streams `processed` or `failed` (bare status string with an event-stream content type, no SSE framing; read it with `fetch`, not `EventSource`) |
+| `POST /chat` | 🟡 | Streams a Claude response grounded in retrieved chunks. Single-turn: no history, no `conversation_id` |
 | Ingestion pipeline | ✅ | Extract → chunk → embed → upsert to Pinecone → update status |
-| Retrieval + citations | ⏳ | Next |
-| `create_task` tool (MCP) | ⏳ | Planned |
+| Retrieval | ✅ | Top-k (5) cosine search, filtered by `min_score=0.3` (not yet validated against real questions) |
+| Citations | ⏳ | Chunks are labelled `[filename, chunk index N]` in the prompt, but the backend does not send them to the client; the UI shell exists |
+| Message history (`messages` table) | ⏳ | In progress, required for the MVP |
+| `create_task` tool (MCP) | ⏳ | Planned (day 3) |
 | Evaluation (RAGAS) | ⏳ | Planned |
-| Cost / latency logging | ⏳ | Planned |
-| Frontend | 🟡 | Chat UI with a streaming client; the sources/citations panel still uses mock data and there is no upload UI yet |
+| Cost / latency logging | ⏳ | Planned; `max_tokens=1024` cap is already set |
+| Frontend | 🟡 | Chat UI with streaming; document list, upload and status use real data. Citations and telemetry are hidden until the backend provides data |
+| Automated tests | ⏳ | None yet |
 
 ## How it works
 
@@ -25,17 +29,17 @@ Document ingestion is complete end to end. Retrieval (grounding chat answers in 
 
 1. `POST /documents` validates the file type and rejects a duplicate filename.
 2. The file is saved to Supabase Storage and a row is created in the `documents` table with status `processing`.
-3. A background task extracts the text (`pypdf` in layout mode for PDFs), splits it into chunks of 2000 characters (about 500 tokens) with 200 characters of overlap, embeds each chunk with OpenAI `text-embedding-3-small` (1536 dimensions), and upserts the vectors to Pinecone with metadata (`text`, `document_id`, `chunk_index`).
-4. The status changes to `processed` (or `failed`, with the traceback logged) and the result is pushed to the client over SSE.
+3. A background task extracts the text (`pypdf` in layout mode for PDFs), splits it into chunks of 2000 characters (about 500 tokens) with 200 characters of overlap, embeds each chunk with OpenAI `text-embedding-3-small` (1536 dimensions), and upserts the vectors to Pinecone with metadata (`text`, `document_id`, `chunk_index`, `document_filename`).
+4. The status changes to `processed` (or `failed`, with the traceback logged) and the result is pushed to the client.
 
-**Chat message (target design; retrieval not implemented yet)**
+**Chat message (retrieval implemented; history, tool and citations pending)**
 
 1. The user sends a question.
-2. The backend embeds the question and runs a top-k similarity search in Pinecone.
-3. It builds a prompt: system instructions + retrieved chunks wrapped in `<reference_data>` (untrusted data) + recent history + the question.
-4. It calls the LLM with the `create_task` tool available.
-5. The model answers with citations, or calls `create_task` to flag a follow-up when the documents can't answer.
-6. The response streams back; tokens, latency and cost are logged.
+2. The backend embeds the question and runs a top-k similarity search in Pinecone, dropping matches below `min_score`. *(done)*
+3. It builds the prompt: system instructions + retrieved chunks wrapped in `<reference_data>` (untrusted data, passed in the `system` parameter) + the question. Recent history is not included yet. *(done, except history)*
+4. It calls the LLM with the `create_task` tool available. *(not started)*
+5. The model answers with citations, or calls `create_task` to flag a follow-up when the documents can't answer. *(not started)*
+6. The response streams back; tokens, latency and cost are logged. *(streaming done; metrics not started)*
 
 ## Architecture
 
@@ -47,11 +51,11 @@ app/
 ├── api/
 │   ├── routers/                # chat.py, documents.py (HTTP only)
 │   └── schemas/                # request/response models (Pydantic)
-├── application/                # use cases: chat, upload, process document
+├── application/                # use cases: chat, retrieval, upload, process document
 ├── domain/
 │   ├── chat/                   # Message entity, LLMClient port
 │   ├── documents/              # Document entity; extractor, notifier, repository, storage ports
-│   └── rag/                    # Chunk entity; embedding and vector store ports; chunking
+│   └── rag/                    # Chunk and RetrievedChunk entities; embedding and vector store ports; chunking
 └── infrastructure/             # adapters
     ├── anthropic/              # LLM client (streaming)
     ├── openai/                 # embeddings
@@ -67,13 +71,13 @@ frontend/                       # React + TypeScript + Vite
 | Layer | Tool | Status |
 | --- | --- | --- |
 | Backend | Python + FastAPI | ✅ |
-| LLM | Anthropic Claude (Python SDK) | ✅ |
+| LLM | Anthropic Claude (Python SDK), `claude-haiku-5-5` for testing | ✅ |
 | Embeddings | OpenAI `text-embedding-3-small` | ✅ |
 | Vector database | Pinecone (serverless, cosine) | ✅ |
 | Database + file storage | Supabase (Postgres + Storage) | ✅ |
 | PDF extraction | `pypdf` | ✅ |
 | Frontend | React, TypeScript, Vite | 🟡 |
-| Orchestration | LangGraph | ⏳ Tool-calling loop |
+| Orchestration | LangGraph | ⏳ Undecided: tool-calling loop or SDK directly |
 | Tool standard | MCP | ⏳ `create_task` |
 | Evaluation | RAGAS | ⏳ |
 | Observability | LangSmith | ⏳ |
@@ -142,6 +146,12 @@ Watch its processing status, using the `id` from the previous response:
 curl -N http://localhost:8000/documents/<id>/status
 ```
 
+List uploaded documents:
+
+```
+curl http://localhost:8000/documents
+```
+
 Stream a chat response (`-N` disables curl's output buffering, so you see the chunks arrive):
 
 ```
@@ -152,19 +162,28 @@ curl -N -X POST http://localhost:8000/chat \
 
 ## Roadmap
 
-- [x] FastAPI skeleton, streaming chat endpoint (SSE)
+- [x] FastAPI skeleton, streaming chat endpoint
 - [x] Ports-and-adapters backend structure
 - [x] Document upload, storage and ingestion pipeline (Pinecone)
-- [x] Processing status over SSE
-- [ ] Retrieval wired into chat, with citations
-- [ ] Frontend wired to the real backend (upload, sources)
-- [ ] `create_task` tool via MCP, prompt-injection guardrails
+- [x] Processing status streamed to the client
+- [x] Retrieval wired into chat (`<reference_data>` injection)
+- [x] Frontend wired to the real backend for documents (list, upload, status)
+- [ ] Message history persisted and used in chat
+- [ ] Visible citations in the UI
+- [ ] `create_task` tool via MCP, with argument guard and tasks view
+- [ ] Prompt-injection guardrail tested with a malicious document
 - [ ] Golden eval set (15-20 Q&A pairs) and RAGAS scoring
 - [ ] Cost/latency logging (LangSmith) and prompt caching
 - [ ] Deployment, demo and final write-up
 
+## Known limitations
+
+- No auth and no per-user scoping: retrieval spans all uploaded documents. Acceptable for a single-user demo.
+- Supabase's free tier pauses on inactivity (`GET /documents` then fails with a 500 and a name-resolution error); resume the project from the dashboard.
+- CORS only allows `http://localhost:5173` and the frontend API URLs are hard-coded to `127.0.0.1:8000`, so it is not deployable as is.
+
 ## Safety notes
 
-- Retrieved content will be wrapped in explicit `<reference_data>` markers, with a system-prompt instruction to treat it as data and never as instructions. This is a soft (learned) defense, not an architectural guarantee.
+- Retrieved content is wrapped in explicit `<reference_data>` markers, with a system-prompt instruction to treat it as data and never as instructions. This is a soft (learned) defense, not an architectural guarantee, and it has not yet been tested with a malicious document.
 - The planned `create_task` tool is create-only, with no update, delete or external side effects. That is a hard, architectural limit on the worst case if the soft defense fails.
 - Error details from unexpected failures are logged on the server and never returned to the client.

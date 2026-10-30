@@ -11,6 +11,6 @@ class ChatService:
         self._retrieval_service = retrieval_service
     def send_message(self, text: str) -> Iterator[str]:
         chunks = self._retrieval_service.retrieve(text)
-        rag_content = "\n".join([f"[{chunk.document_filename}, chunk {chunk.chunk_index}] {chunk.text}" for chunk in chunks])
+        rag_content = "\n".join([f"[{chunk.document_filename}, chunk index {chunk.chunk_index}] {chunk.text}" for chunk in chunks])
         messages = [Message(role=Role.USER, content=text)]
         return self._llm_client.stream_reply(messages, rag_content)

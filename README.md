@@ -4,7 +4,7 @@ A full-stack document Q&A assistant: upload documents, ask questions, get ground
 
 ## Status
 
-Ingestion and retrieval are done: chat answers are grounded in the uploaded documents, and the frontend runs on real document data. Next up are chat history persistence and the `create_task` agent tool. Full design, decisions and audit: [docs/Project_description_v2.md](docs/Project_description_v2.md).
+Ingestion and retrieval are done: chat answers are grounded in the uploaded documents, and the frontend runs on real document data. Chat history persistence is in progress (the `messages` schema is defined; the repository adapter and the chat wiring are pending), and the `create_task` agent tool comes right after. Full design, decisions and audit: [docs/Project_description_v2.md](docs/Project_description_v2.md).
 
 | Area | Status | Notes |
 | --- | --- | --- |
@@ -16,7 +16,7 @@ Ingestion and retrieval are done: chat answers are grounded in the uploaded docu
 | Ingestion pipeline | ✅ | Extract → chunk → embed → upsert to Pinecone → update status |
 | Retrieval | ✅ | Top-k (5) cosine search, filtered by `min_score=0.3` (not yet validated against real questions) |
 | Citations | ⏳ | Chunks are labelled `[filename, chunk index N]` in the prompt, but the backend does not send them to the client; the UI shell exists |
-| Message history (`messages` table) | ⏳ | In progress, required for the MVP |
+| Message history (`messages` table) | 🟡 | In progress, required for the MVP. Schema defined in `sql/001_create_messages.sql`; repository adapter and chat wiring pending |
 | `create_task` tool (MCP) | ⏳ | Planned (day 3) |
 | Evaluation (RAGAS) | ⏳ | Planned |
 | Cost / latency logging | ⏳ | Planned; `max_tokens=1024` cap is already set |
@@ -64,6 +64,8 @@ app/
     ├── extractors/             # PDF and text extractors
     └── memory/                 # in-memory SSE notifier
 frontend/                       # React + TypeScript + Vite
+sql/                            # database schema scripts, applied in order (see Setup)
+docs/                           # design document
 ```
 
 ## Tech stack
@@ -90,7 +92,11 @@ frontend/                       # React + TypeScript + Vite
 **1. External services**
 
 - **Pinecone:** create a serverless index with 1536 dimensions and the cosine metric.
-- **Supabase:** create a Storage bucket named `AI_DOCUMENT_ASSISTANT` and a `documents` table with the columns `id`, `filename`, `storage_path`, `status`, `created_at`.
+- **Supabase:** create a project, then:
+  1. Create a Storage bucket named `AI_DOCUMENT_ASSISTANT`.
+  2. Open the SQL Editor and run the scripts in `sql/` in order: `000_create_documents.sql`, then `001_create_messages.sql`. They create the tables and enable Row Level Security on them.
+
+  The backend connects with the secret key, which bypasses Row Level Security. The tables have it enabled and no policies, so the public API cannot read or write them. The schema is applied by hand with these versioned scripts; there is no migration tool yet (see Known limitations).
 
 **2. Backend**
 
@@ -180,6 +186,8 @@ curl -N -X POST http://localhost:8000/chat \
 
 - No auth and no per-user scoping: retrieval spans all uploaded documents. Acceptable for a single-user demo.
 - Supabase's free tier pauses on inactivity (`GET /documents` then fails with a 500 and a name-resolution error); resume the project from the dashboard.
+- The database schema is applied by hand from the scripts in `sql/`; there is no migration tool (such as Alembic) yet.
+- `documents.filename` has no unique constraint: the duplicate check lives only in application code (`exists_by_filename`), so two simultaneous uploads of the same name could both pass.
 - CORS only allows `http://localhost:5173` and the frontend API URLs are hard-coded to `127.0.0.1:8000`, so it is not deployable as is.
 
 ## Safety notes

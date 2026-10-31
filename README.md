@@ -87,13 +87,13 @@ docs/                           # design document
 
 ## Setup
 
-**Prerequisites:** Python 3, Node.js, and accounts for Anthropic, OpenAI, Supabase and Pinecone.
+**Prerequisites:** Python 3.12 and Node.js 22 (developed with Python 3.12.3 and Node v22.23.2), and accounts for Anthropic, OpenAI, Supabase and Pinecone.
 
 **1. External services**
 
-- **Pinecone:** create a serverless index with 1536 dimensions and the cosine metric.
+- **Pinecone:** create a serverless index with 1536 dimensions and the cosine metric. The index name is free, but it must match `PINECONE_INDEX_NAME` in your `.env`. The 1536 dimensions come from the embedding model (`text-embedding-3-small`); if you use a different model, the index dimension must change with it.
 - **Supabase:** create a project, then:
-  1. Create a Storage bucket named `AI_DOCUMENT_ASSISTANT`.
+  1. Create a **private** Storage bucket named exactly `AI_DOCUMENT_ASSISTANT` (the name is hard-coded in `SupabaseDocumentStorage`). It must exist before the first upload, or uploads fail. The backend uploads with the secret key and never uses public URLs, so the bucket does not need to be public.
   2. Open the SQL Editor and run the scripts in `sql/` in order: `000_create_documents.sql`, then `001_create_messages.sql`. They create the tables and enable Row Level Security on them.
 
   The backend connects with the secret key, which bypasses Row Level Security. The tables have it enabled and no policies, so the public API cannot read or write them. The schema is applied by hand with these versioned scripts; there is no migration tool yet (see Known limitations).
@@ -109,16 +109,17 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-Create a `.env` file in the project root (never commit it):
+Create your `.env` from the template and fill in the values (`.env` is git-ignored; never commit it):
 
 ```
-ANTHROPIC_API_KEY=
-OPENAI_API_KEY=
-SUPABASE_URL=
-SUPABASE_SECRET_KEY=
-PINECONE_API_KEY=
-PINECONE_INDEX_NAME=
+cp .env.example .env
 ```
+
+- `ANTHROPIC_API_KEY`: your Anthropic API key.
+- `OPENAI_API_KEY`: your OpenAI API key, used for embeddings (`text-embedding-3-small`).
+- `SUPABASE_URL`: the project URL, from the Supabase dashboard.
+- `SUPABASE_SECRET_KEY`: the project's **secret** key, not the public (anon/publishable) one. It bypasses Row Level Security, so it must stay on the backend and never reach the frontend.
+- `PINECONE_API_KEY` and `PINECONE_INDEX_NAME`: your Pinecone key and the name of the index you created above.
 
 Run the server:
 

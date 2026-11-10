@@ -16,7 +16,7 @@ Ingestion and retrieval are done: chat answers are grounded in the uploaded docu
 | Ingestion pipeline | ✅ | Extract → chunk → embed → upsert to Pinecone → update status |
 | Retrieval | ✅ | Top-k (5) cosine search, filtered by `min_score=0.3` (not yet validated against real questions) |
 | Citations | ⏳ | Chunks are labelled `[filename, chunk index N]` in the prompt, but the backend does not send them to the client; the UI shell exists |
-| Message history (`messages` table) | 🟡 | In progress, required for the MVP. Schema defined in `sql/001_create_messages.sql`; repository adapter and chat wiring pending |
+| Message history (`messages` table) | 🟡 | In progress, required for the MVP. Schema defined in `sql/001_create_messages.sql`; repository adapter done, chat wiring pending |
 | `create_task` tool (MCP) | ⏳ | Planned (day 3) |
 | Evaluation (RAGAS) | ⏳ | Planned |
 | Cost / latency logging | ⏳ | Planned; `max_tokens=1024` cap is already set |
@@ -94,7 +94,7 @@ docs/                           # design document
 - **Pinecone:** create a serverless index with 1536 dimensions and the cosine metric. The index name is free, but it must match `PINECONE_INDEX_NAME` in your `.env`. The 1536 dimensions come from the embedding model (`text-embedding-3-small`); if you use a different model, the index dimension must change with it.
 - **Supabase:** create a project, then:
   1. Create a **private** Storage bucket named exactly `AI_DOCUMENT_ASSISTANT` (the name is hard-coded in `SupabaseDocumentStorage`). It must exist before the first upload, or uploads fail. The backend uploads with the secret key and never uses public URLs, so the bucket does not need to be public.
-  2. Open the SQL Editor and run the scripts in `sql/` in order: `000_create_documents.sql`, then `001_create_messages.sql`. They create the tables and enable Row Level Security on them.
+  2. Open the SQL Editor and run the scripts in `sql/` in order: `000_create_documents.sql`, `001_create_messages.sql`,then `002_complete_exchange.sql`. They create the tables and enable Row Level Security on them.
 
   The backend connects with the secret key, which bypasses Row Level Security. The tables have it enabled and no policies, so the public API cannot read or write them. The schema is applied by hand with these versioned scripts; there is no migration tool yet (see Known limitations).
 
